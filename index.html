@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pogo For Animals Script — Auto-Catch, Perfect Throws &amp; Rare Animal ESP</title>
+<meta name="description" content="Pogo For Animals script with auto-catch, perfect throw timing, ESP for rare animals, teleport farm loop and a GUI toggle panel. Free, open source, Windows 10 / 11.">
+<style>
+  :root{
+    --bg-1:#070b1a;
+    --bg-2:#0d1330;
+    --bg-3:#141a38;
+    --ink:#eef1ff;
+    --muted:#9aa4c7;
+    --line:rgba(140,160,255,.16);
+    --accent:#7c5cff;
+    --accent-2:#31d0ff;
+    --accent-3:#ff5cae;
+    --card:rgba(20,26,56,.62);
+    --radius:18px;
+    --max:1120px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  html{scroll-behavior:smooth}
+
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(124,92,255,.30), transparent 60%),
+      radial-gradient(900px 520px at 88% 4%, rgba(49,208,255,.18), transparent 62%),
+      radial-gradient(800px 600px at 50% 110%, rgba(255,92,174,.14), transparent 60%),
+      linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;text-decoration:none}
+
+  .wrap{
+    width:100%;
+    max-width:var(--max);
+    margin:0 auto;
+    padding:0 22px;
+  }
+
+  /* ---------- NAV ---------- */
+  .nav-shell{
+    position:sticky;
+    top:0;
+    z-index:100;
+    padding:14px 0;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    background:rgba(9,13,31,.55);
+    border-bottom:1px solid var(--line);
+  }
+
+  .nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:700;
+    letter-spacing:.2px;
+    font-size:16px;
+    white-space:nowrap;
+  }
+
+  .brand-mark{
+    width:32px;height:32px;
+    display:grid;place-items:center;
+    border-radius:10px;
+    font-size:16px;
+    background:linear-gradient(140deg,var(--accent),var(--accent-2));
+    box-shadow:0 6px 20px rgba(124,92,255,.45);
+  }
+
+  .nav-links{
+    display:flex;
+    align-items:center;
+    gap:26px;
+    font-size:14px;
+    color:var(--muted);
+  }
+
+  .nav-links a{transition:color .2s ease}
+  .nav-links a:hover{color:var(--ink)}
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    font-weight:650;
+    font-size:14.5px;
+    border-radius:12px;
+    padding:12px 20px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .18s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+    white-space:nowrap;
+  }
+
+  .btn-primary{
+    color:#fff;
+    background:linear-gradient(135deg,var(--accent) 0%,#5a7bff 55%,var(--accent-2) 100%);
+    box-shadow:0 10px 26px rgba(94,110,255,.38), inset 0 1px 0 rgba(255,255,255,.22);
+  }
+
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 16px 34px rgba(94,110,255,.5), inset 0 1px 0 rgba(255,255,255,.28);
+  }
+
+  .btn-ghost{
+    color:var(--ink);
+    background:rgba(255,255,255,.04);
+    border-color:var(--line);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  }
+
+  .btn-ghost:hover{
+    transform:translateY(-2px);
+    background:rgba(255,255,255,.08);
+    border-color:rgba(160,180,255,.36);
+  }
+
+  .nav .btn{padding:10px 18px;font-size:13.5px}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:88px 0 64px;
+    text-align:center;
+    position:relative;
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    color:#c9d3ff;
+    padding:7px 16px;
+    border-radius:999px;
+    border:1px solid rgba(140,160,255,.28);
+    background:rgba(124,92,255,.12);
+    box-shadow:0 0 26px rgba(124,92,255,.22) inset;
+    margin-bottom:26px;
+  }
+
+  .pill .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--accent-2);
+    box-shadow:0 0 10px var(--accent-2);
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse{
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.45;transform:scale(.82)}
+  }
+
+  h1{
+    font-size:clamp(2.1rem,5.4vw,4rem);
+    line-height:1.08;
+    font-weight:800;
+    letter-spacing:-1.4px;
+    margin-bottom:22px;
+  }
+
+  .grad-text{
+    background:linear-gradient(100deg,#a78bfa 0%,#7c5cff 28%,#31d0ff 62%,#ff5cae 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero p.lead{
+    max-width:660px;
+    margin:0 auto 34px;
+    color:var(--muted);
+    font-size:clamp(.98rem,1.6vw,1.1rem);
+  }
+
+  .hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    justify-content:center;
+    margin-bottom:42px;
+  }
+
+  .hero-actions .btn{
+    padding:15px 30px;
+    font-size:15.5px;
+    border-radius:14px;
+  }
+
+  .stats{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:12px;
+  }
+
+  .stat{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    min-width:130px;
+    padding:14px 20px;
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:rgba(18,24,52,.55);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+
+  .stat b{
+    font-size:16px;
+    font-weight:750;
+    letter-spacing:.2px;
+    background:linear-gradient(100deg,#c7d2ff,#7c5cff 60%,#31d0ff);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .stat span{
+    font-size:11.5px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-weight:600;
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  section{padding:58px 0}
+
+  .sec-head{
+    text-align:center;
+    margin-bottom:44px;
+  }
+
+  .sec-head h2{
+    font-size:clamp(1.5rem,3.2vw,2.15rem);
+    font-weight:780;
+    letter-spacing:-.7px;
+    margin-bottom:10px;
+  }
+
+  .sec-head p{
+    color:var(--muted);
+    font-size:.98rem;
+    max-width:560px;
+    margin:0 auto;
+  }
+
+  /* ---------- FEATURES ---------- */
+  .features{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+  }
+
+  .card{
+    position:relative;
+    padding:26px 22px 24px;
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    background:var(--card);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    overflow:hidden;
+    transition:transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3));
+    opacity:.9;
+  }
+
+  .card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(150,170,255,.34);
+    box-shadow:0 20px 44px rgba(6,10,28,.62), 0 0 0 1px rgba(124,92,255,.12);
+  }
+
+  .card .ico{
+    width:46px;height:46px;
+    display:grid;place-items:center;
+    font-size:22px;
+    border-radius:12px;
+    margin-bottom:16px;
+    background:rgba(124,92,255,.14);
+    border:1px solid rgba(140,160,255,.22);
+  }
+
+  .card h3{
+    font-size:1.03rem;
+    font-weight:720;
+    margin-bottom:8px;
+    letter-spacing:-.2px;
+  }
+
+  .card p{
+    font-size:.9rem;
+    color:var(--muted);
+    line-height:1.62;
+  }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{
+    position:relative;
+    max-width:720px;
+    margin:0 auto;
+    padding-left:62px;
+  }
+
+  .steps::before{
+    content:"";
+    position:absolute;
+    left:23px;
+    top:12px;
+    bottom:12px;
+    width:3px;
+    border-radius:3px;
+    background:linear-gradient(180deg,var(--accent),#5a7bff 45%,var(--accent-2) 80%,transparent);
+    box-shadow:0 0 18px rgba(124,92,255,.45);
+  }
+
+  .step{
+    position:relative;
+    padding:0 0 34px 0;
+  }
+
+  .step:last-child{padding-bottom:0}
+
+  .step-num{
+    position:absolute;
+    left:-62px;
+    top:-2px;
+    width:48px;height:48px;
+    display:grid;place-items:center;
+    font-weight:800;
+    font-size:16px;
+    border-radius:50%;
+    color:#fff;
+    background:linear-gradient(140deg,#1a2148,#141a38);
+    border:2px solid rgba(124,92,255,.55);
+    box-shadow:0 0 0 6px rgba(124,92,255,.09), 0 8px 22px rgba(0,0,0,.45);
+  }
+
+  .step h3{
+    font-size:1.04rem;
+    font-weight:720;
+    margin-bottom:6px;
+  }
+
+  .step p{
+    font-size:.92rem;
+    color:var(--muted);
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq-list{
+    max-width:760px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  details{
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:rgba(18,24,52,.55);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    overflow:hidden;
+    transition:border-color .22s ease, background .22s ease;
+  }
+
+  details[open]{
+    border-color:rgba(140,160,255,.34);
+    background:rgba(22,28,60,.7);
+  }
+
+  summary{
+    list-style:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:18px 22px;
+    font-weight:650;
+    font-size:.98rem;
+    user-select:none;
+  }
+
+  summary::-webkit-details-marker{display:none}
+
+  summary .plus{
+    flex:0 0 auto;
+    width:26px;height:26px;
+    display:grid;place-items:center;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:700;
+    color:#c9d3ff;
+    background:rgba(124,92,255,.16);
+    border:1px solid rgba(140,160,255,.24);
+    transition:transform .28s ease, background .28s ease, color .28s ease;
+  }
+
+  details[open] summary .plus{
+    transform:rotate(45deg);
+    background:rgba(49,208,255,.18);
+    color:#8ee9ff;
+  }
+
+  details .answer{
+    padding:0 22px 20px;
+    font-size:.91rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+
+  /* ---------- CTA BANNER ---------- */
+  .cta-banner{
+    position:relative;
+    overflow:hidden;
+    border-radius:26px;
+    border:1px solid rgba(140,160,255,.26);
+    background:
+      radial-gradient(620px 320px at 50% -30%, rgba(124,92,255,.42), transparent 70%),
+      radial-gradient(480px 280px at 12% 120%, rgba(49,208,255,.22), transparent 70%),
+      linear-gradient(160deg,rgba(26,33,72,.94),rgba(14,19,44,.94));
+    padding:62px 30px;
+    text-align:center;
+    box-shadow:0 30px 70px rgba(4,7,22,.6);
+  }
+
+  .cta-banner::after{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius:26px;
+    pointer-events:none;
+    background:radial-gradient(500px 220px at 50% 0%, rgba(124,92,255,.28), transparent 70%);
+  }
+
+  .cta-banner h2{
+    position:relative;
+    font-size:clamp(1.5rem,3.4vw,2.25rem);
+    font-weight:800;
+    letter-spacing:-.8px;
+    margin-bottom:12px;
+  }
+
+  .cta-banner p{
+    position:relative;
+    color:var(--muted);
+    max-width:540px;
+    margin:0 auto 30px;
+    font-size:.98rem;
+  }
+
+  .cta-banner .hero-actions{position:relative;margin-bottom:0}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    margin-top:30px;
+    padding:30px 0 40px;
+  }
+
+  .foot{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    font-size:13.5px;
+    color:var(--muted);
+  }
+
+  .foot a{
+    color:#c9d3ff;
+    font-weight:600;
+    border-bottom:1px dashed rgba(140,160,255,.4);
+    transition:color .2s ease, border-color .2s ease;
+  }
+
+  .foot a:hover{color:#fff;border-color:#fff}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:900px){
+    .features{grid-template-columns:repeat(2,1fr)}
+  }
+
+  @media (max-width:640px){
+    .nav-links{display:none}
+    .nav{padding:0}
+    .nav .btn{padding:9px 14px;font-size:12.5px}
+    .hero{padding:56px 0 44px}
+    h1{letter-spacing:-.8px}
+    .features{grid-template-columns:1fr}
+    .stats{gap:9px}
+    .stat{min-width:calc(50% - 5px);flex:1 1 auto;padding:12px 14px}
+    .steps{padding-left:54px}
+    .steps::before{left:19px}
+    .step-num{left:-54px;width:40px;height:40px;font-size:14px}
+    section{padding:44px 0}
+    .cta-banner{padding:46px 22px;border-radius:20px}
+    .hero-actions .btn{width:100%}
+    .foot{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+  <div class="nav-shell">
+    <div class="wrap nav">
+      <div class="brand">
+        <span class="brand-mark">🐾</span>
+        <span>Pogo Animals Script</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="btn btn-primary" href="https://gitscore.cc" target="_blank" rel="noopener">Download</a>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="wrap">
+      <span class="pill"><span class="dot"></span>Pogo For Animals Script</span>
+      <h1>Automate the hunt.<br><span class="grad-text">Catch every rare animal.</span></h1>
+      <p class="lead">
+        A lightweight Windows script for Pogo For Animals with auto-catch, frame-perfect throw timing,
+        ESP highlights for rare animals, a teleport farm loop and a clean GUI toggle panel — all in one
+        free, open-source build.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://gitscore.cc" target="_blank" rel="noopener">⬇ Download for Windows</a>
+        <a class="btn btn-ghost" href="https://gitscore.cc" target="_blank" rel="noopener">★ View on GitHub</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>48,200+</b><span>Downloads</span></div>
+        <div class="stat"><b>v3.4.1</b><span>Version</span></div>
+        <div class="stat"><b>Windows 10 / 11</b><span>Platform</span></div>
+        <div class="stat"><b>Free &amp; open source</b><span>License</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Everything the Pogo Animals Script does</h2>
+        <p>Built for players who want consistent catches without grinding the same loop for hours.</p>
+      </div>
+      <div class="features">
+
+        <article class="card">
+          <div class="ico">🎯</div>
+          <h3>Auto-Catch Engine</h3>
+          <p>Detects nearby animals and throws automatically, so your session keeps catching even while you step away from the keyboard.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">⏱️</div>
+          <h3>Perfect Throw Timing</h3>
+          <p>Frame-accurate throw release tuned for the sweet spot, giving you a much higher rate of perfect and excellent catches.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">👁️</div>
+          <h3>Rare Animal ESP</h3>
+          <p>Highlights rare and event animals through walls with a colored outline, distance readout and on-screen name tags.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">🌀</div>
+          <h3>Teleport Farm Loop</h3>
+          <p>Save waypoints and cycle through them automatically to farm spawn clusters without walking the map by hand.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">🎛️</div>
+          <h3>GUI Toggle Panel</h3>
+          <p>One clean overlay panel with hotkey-bound switches for every module — turn auto-catch, ESP and farm loops on or off instantly.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">⚡</div>
+          <h3>Lightweight &amp; Configurable</h3>
+          <p>Single script file, no heavy installer, low CPU usage. Every module is configurable through a plain-text config you can edit.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>How it works</h2>
+        <p>Three steps from download to your first automated catch session.</p>
+      </div>
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Download &amp; extract</h3>
+          <p>Grab the latest Pogo For Animals script build from the download page and extract it to any folder on your Windows 10 or 11 PC.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Run the script &amp; attach</h3>
+          <p>Launch the script, let it attach to the Pogo For Animals window, and the GUI toggle panel will appear over your game.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Enable modules &amp; farm</h3>
+          <p>Flip on auto-catch, perfect throw timing, rare animal ESP and the teleport farm loop from the panel — then let the loop run.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Frequently asked questions</h2>
+        <p>Quick answers about the Pogo For Animals script.</p>
+      </div>
+      <div class="faq-list">
+
+        <details>
+          <summary>Is the Pogo For Animals script free?
+            <span class="plus">+</span>
+          </summary>
+          <div class="answer">
+            Yes. The Pogo For Animals script is free and open source. You can download the latest build from
+            gitscore.cc, inspect the code, and modify it for your own use.
+          </div>
+        </details>
+
+        <details>
+          <summary>Which Windows versions are supported?
+            <span class="plus">+</span>
+          </summary>
+          <div class="answer">
+            The script runs on Windows 10 and Windows 11 (64-bit). No external runtime or heavy installer is
+            required — just extract the files and run the script.
+          </div>
+        </details>
+
+        <details>
+          <summary>What does the rare animal ESP actually show?
+            <span class="plus">+</span>
+          </summary>
+          <div class="answer">
+            The ESP module draws outlines and name tags for rare and event animals through terrain, along with a
+            distance readout. You can filter which rarity tiers are highlighted from the GUI toggle panel.
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I customize the auto-catch and farm loop settings?
+            <span class="plus">+</span>
+          </summary>
+          <div class="answer">
+            Absolutely. Throw timing, catch radius, ESP colors, waypoint lists and loop speed are all editable
+            through the toggle panel or the plain-text config file included in the download.
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="cta-banner">
+        <h2>Ready to stop grinding for rare animals?</h2>
+        <p>Download the Pogo For Animals script, flip the toggles and let auto-catch, perfect throws and the teleport farm loop do the work.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://gitscore.cc" target="_blank" rel="noopener">
